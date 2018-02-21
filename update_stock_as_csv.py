@@ -44,7 +44,7 @@ for code in codes:
         else:
             df.to_csv(filename)
         df = pd.read_csv(filename)
-        df = df.append(df_old[1:],ignore_index=True)
+        df = df.append(df_old[1:], ignore_index=True)
         if df is None:
             pass
         else:
