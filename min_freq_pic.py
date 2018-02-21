@@ -2,6 +2,8 @@ import tkinter as tk
 import tushare as ts
 import matplotlib.pyplot as plt
 
+""" 获取一天内1min线的曲线图
+    可以连续获取多天 """
 
 code = '600000'
 date = '2018-01-14'
