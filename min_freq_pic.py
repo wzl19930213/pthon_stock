@@ -86,7 +86,7 @@ btn_pre.place(x=10, y=height/2-20)
 btn_next = tk.Button(window, text='下\n一\n天', command=next_pic, width=2, height=3)
 btn_next.place(x=width-40, y=height/2-20)
 
-image_load = tk.PhotoImage(file='cache/pic.gif')
+image_load = tk.PhotoImage(file='cache/next.png')
 label = tk.Label(window, image=image_load)
 label.bm = image_load
 label.place(x=46, y=10, width=700, height=400)
