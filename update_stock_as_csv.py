@@ -24,37 +24,40 @@ length = len(codes)
 print(start_time + '  ' + current_time + '  start: ' + str(length))
 count = 0
 for code in codes:
-    print('%.2f%%' % (count/length*100))
-    count = count + 1
+    try:
+        print('%.2f%%' % (count/length*100))
+        count = count + 1
 
-    code = str(code).zfill(6)
-    filename = daily_data_position + code + '.csv'
-    if os.path.exists(filename):
-        last_date = start_time
-        csv_data = csv.reader(open(filename, encoding='utf-8'))
-        df_old = pd.read_csv(filename)
-        i = 0
-        for row in csv_data:
-            if i == 1:
-                last_date = row[0]
-            i = i + 1
-        df = ts.get_hist_data(code, start=last_date, end=current_time)
-        if df is None:
-            pass
+        code = str(code).zfill(6)
+        filename = daily_data_position + code + '.csv'
+        if os.path.exists(filename):
+            last_date = start_time
+            csv_data = csv.reader(open(filename, encoding='utf-8'))
+            df_old = pd.read_csv(filename)
+            i = 0
+            for row in csv_data:
+                if i == 1:
+                    last_date = row[0]
+                i = i + 1
+            df = ts.get_hist_data(code, start=last_date, end=current_time)
+            if df is None:
+                pass
+            else:
+                df.to_csv(filename)
+            df = pd.read_csv(filename)
+            df = df.append(df_old[1:], ignore_index=True)
+            if df is None:
+                pass
+            else:
+                df.to_csv(filename, index=None)
+            # df.to_csv(filename, mode='a', header=None, index=None)
         else:
-            df.to_csv(filename)
-        df = pd.read_csv(filename)
-        df = df.append(df_old[1:], ignore_index=True)
-        if df is None:
-            pass
-        else:
-            df.to_csv(filename, index=None)
-        # df.to_csv(filename, mode='a', header=None, index=None)
-    else:
-        df = ts.get_hist_data(code, start=start_time, end=current_time)
-        if df is None:
-            pass
-        else:
-            df.to_csv(filename)
+            df = ts.get_hist_data(code, start=start_time, end=current_time)
+            if df is None:
+                pass
+            else:
+                df.to_csv(filename)
+    except:
+        print('error')
 print('100%')
 
