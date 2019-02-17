@@ -35,17 +35,15 @@ for code in codes:
             csv_data = csv.reader(open(filename, encoding='utf-8'))
             df_old = pd.read_csv(filename)
             i = 0
+            last_date_temp = ''
             for row in csv_data:
                 if i == 1:
-                    last_date = row[1]
+                    last_date = str(row[1])
+                    last_date_temp = row[0]
                     break
                 i = i + 1
-            if last_date.replace(".", '').isdigit():
-                for row in csv_data:
-                    if i == 1:
-                        last_date = row[0]
-                        break
-                    i = i + 1
+            if last_date.replace('.', '').isdigit():
+                last_date = last_date_temp
             df = ts.get_hist_data(code, start=last_date, end=current_time)
             print('code: ' + code + ' last_date: ' + last_date + ' current_time: ' + current_time)
             if df is None:
