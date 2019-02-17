@@ -37,16 +37,26 @@ for code in codes:
             i = 0
             for row in csv_data:
                 if i == 1:
-                    last_date = row[0]
+                    last_date = row[1]
+                    break
                 i = i + 1
+            if last_date.replace(".", '').isdigit():
+                for row in csv_data:
+                    if i == 1:
+                        last_date = row[0]
+                        break
+                    i = i + 1
             df = ts.get_hist_data(code, start=last_date, end=current_time)
+            print('code: ' + code + ' last_date: ' + last_date + ' current_time: ' + current_time)
             if df is None:
+                print('df is None')
                 pass
             else:
                 df.to_csv(filename)
             df = pd.read_csv(filename)
             df = df.append(df_old[1:], ignore_index=True)
             if df is None:
+                print('df is None')
                 pass
             else:
                 df.to_csv(filename, index=None)
@@ -54,6 +64,7 @@ for code in codes:
         else:
             df = ts.get_hist_data(code, start=start_time, end=current_time)
             if df is None:
+                print('df is None')
                 pass
             else:
                 df.to_csv(filename)
