@@ -48,14 +48,14 @@ for code in codes:
             print('code: ' + code + ' last_date: ' + last_date + ' current_time: ' + current_time)
             if df is None:
                 print('df is None')
-                pass
+                continue
             else:
                 df.to_csv(filename)
             df = pd.read_csv(filename)
             df = df.append(df_old[1:], ignore_index=True)
             if df is None:
                 print('df is None')
-                pass
+                continue
             else:
                 df.to_csv(filename, index=None)
             # df.to_csv(filename, mode='a', header=None, index=None)
@@ -63,7 +63,7 @@ for code in codes:
             df = ts.get_hist_data(code, start=start_time, end=current_time)
             if df is None:
                 print('df is None')
-                pass
+                continue
             else:
                 df.to_csv(filename)
     except:
