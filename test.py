@@ -12,6 +12,7 @@ from matplotlib.pylab import date2num
 import global_value
 import math
 from pandas.plotting import register_matplotlib_converters
+
 register_matplotlib_converters()
 '''
 上面两句话我也不知道为啥要加，不加会报Warning---
@@ -78,7 +79,7 @@ ax_canddle.legend()
 # 绘制MACD
 ax_macd.plot(data.index, data["macd"], label="macd")
 ax_macd.plot(data.index, data["signal"], label="signal")
-ax_macd.bar(data.index, data["hist"] * 2, label="hist")
+ax_macd.bar(data.index, data["hist"] * 2, label="hist", color=['red' if hist > 0 else 'green' for hist in data["hist"]])
 ax_macd.legend()
 
 # 绘制RSI
