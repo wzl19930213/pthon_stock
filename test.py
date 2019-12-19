@@ -1,15 +1,118 @@
-last_date = str(2.88)
-if last_date.replace('.', '').isdigit():
-    print('is digit')
-else:
-    print('is not digit')
-a = 1
-if 0 < a < 2:
-    print(1)
-# strategy_1 结果 2019.0218
-strategy_high_code = ['000563', '002426', '002031', '002347', '002348', '000030', '300641', '002429', '002057', '600218', '300281', '002746', '002271', '600644', '603005', '002299', '300546', '300657', '300393', '002156', '300479', '002463', '601377', '300131', '002099', '002079', '603766', '300083', '002535', '002321', '600396', '002449', '600246', '000021', '000338', '300725', '300423', '600862', '600486', '603668', '601555', '600667', '000921', '002866', '002241', '600066', '002008', '000915', '300303', '002425', '000783', '002475', '300059', '601908', '603181', '000723', '600809', '300388', '300571', '300532', '002455', '000860', '600030', '300015', '002821', '000565', '300098', '002543', '300595', '603959', '002150', '603186', '000776', '600570', '600522', '600765', '600360', '002358', '600297', '603656', '300383', '002796', '300188', '603260', '300501', '002233', '002439', '002912', '603127', '600312', '600206', '000858', '600038', '603589', '600487', '002508', '002194', '002892', '000166', '000063', '600999', '002145', '601881', '300511', '300307', '603708', '600238', '601515', '300616', '002852', '600779', '300082', '002311', '600756', '000661', '603881', '600636', '603707', '000568', '002402', '002049', '300360', '300456', '002281', '300654', '300285', '600330', '600197', '600737', '600237', '000676', '300024', '002484', '000733', '600109', '002353', '000967', '600017', '300623', '600995', '603385', '000951', '002583', '002465', '601869', '603848', '002491', '002230', '300723', '002334', '000425', '300600', '002831', '300166', '600657', '603993', '002639', '002092', '002056', '002593', '603936', '000823', '300676', '002791', '600585', '603011', '300088', '300349', '300331', '600323', '300735', '600702', '600089', '300124', '600482', '600185', '603980', '600170', '002097', '600469', '000970', '600098', '300572', '002396', '300569', '601933', '300609', '000848', '000036', '000710', '300608', '300047', '002268', '000089', '603595', '300081', '600580', '000988', '600362', '002228', '603333', '002212', '300068', '000877', '600845', '600780', '601866', '002373', '300429', '300079', '300599', '300094', '300213', '000828', '002533', '300638', '000720', '601952', '600873', '002037', '000026', '002330', '000581', '600320', '600597', '600761', '002293', '603086', '600118', '000883', '002395', '600547', '600750', '603728', '300078', '000876', '600406', '002370', '002060', '603303', '000667', '603688', '603131', '600688', '601158', '002205', '600693', '002776', '603007']
-strategy_low_code = ['002124', '300493', '600643', '002916', '002081', '300613', '002129', '002563', '600682', '600061', '002579', '002774', '300123', '300007', '300708', '000532', '300422', '002906', '300101', '600523', '002040', '600650', '603633', '000547', '600605', '002302', '603703', '000628', '002199', '603879', '300374', '600508', '002168', '300435', '000726', '000534', '002250', '603012']
+# 来自文章
+# https://blog.51cto.com/youerning/2428352?source=dra
 
-print(len(strategy_high_code))
-print(len(strategy_low_code))
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import pandas as pd
+import talib
+import tushare as ts
+# pip install https://github.com/matplotlib/mpl_finance/archive/master.zip
+from mpl_finance import candlestick_ohlc
+from matplotlib.pylab import date2num
+import global_value
+import math
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+'''
+上面两句话我也不知道为啥要加，不加会报Warning---
+FutureWarning: Using an implicitly registered datetime converter for a matplotlib plotting method. 
+The converter was registered by pandas on import. 
+Future versions of pandas will require you to explicitly register matplotlib converters.
+'''
 
+daily_data_position = global_value.local_position + 'fig/'
+
+# 使用ggplot样式，好看些
+mpl.style.use("ggplot")
+# 获取上证指数数据
+stock_code = "000001"
+start_time = "2019-01-01"
+data = ts.get_k_data(stock_code, index=True, start=start_time)
+# 将date值转换为datetime类型，并且设置成index
+data.date = pd.to_datetime(data.date)
+data.index = data.date
+
+# 计算移动平均线
+data["ma10"] = talib.MA(data.close, timeperiod=10)
+data["ma30"] = talib.MA(data.close, timeperiod=30)
+
+# 计算RSI
+data["rsi"] = talib.RSI(data.close)
+
+# 计算MACD指标数据
+data["macd"], data["signal"], data["hist"] = talib.MACD(data.close)
+
+# EMA
+data["ema22"] = talib.MA(data.close, timeperiod=22)
+data["ema11"] = talib.MA(data.close, timeperiod=11)
+
+# 计算RSI
+data["rsi"] = talib.RSI(data.close)
+
+# 绘制第一个图
+fig = plt.figure()
+fig.set_size_inches((16, 20))
+
+ax_canddle = fig.add_axes((0, 0.7, 1, 0.3))
+ax_macd = fig.add_axes((0, 0.45, 1, 0.2))
+ax_rsi = fig.add_axes((0, 0.23, 1, 0.2))
+ax_vol = fig.add_axes((0, 0, 1, 0.2))
+
+data_list = []
+for date, row in data[["open", "high", "low", "close"]].iterrows():
+    t = date2num(date)
+    open, high, low, close = row[:]
+    datas = (t, open, high, low, close)
+    data_list.append(datas)
+
+# 绘制蜡烛图
+candlestick_ohlc(ax_canddle, data_list, colorup='r', colordown='green', alpha=0.7, width=0.8)
+# 将x轴设置为时间类型
+ax_canddle.xaxis_date()
+ax_canddle.plot(data.index, data.ma10, label="MA10")
+ax_canddle.plot(data.index, data.ma30, label="MA30")
+ax_canddle.plot(data.index, data.ema22, label="EMA11")
+ax_canddle.plot(data.index, data.ema11, label="EMA22")
+ax_canddle.legend()
+
+# 绘制MACD
+ax_macd.plot(data.index, data["macd"], label="macd")
+ax_macd.plot(data.index, data["signal"], label="signal")
+ax_macd.bar(data.index, data["hist"] * 2, label="hist")
+ax_macd.legend()
+
+# 绘制RSI
+# 超过85%设置为超买, 超过20%为超卖
+ax_rsi.plot(data.index, [80] * len(data.index), label="overbuy")
+ax_rsi.plot(data.index, [20] * len(data.index), label="oversell")
+ax_rsi.plot(data.index, data.rsi, label="rsi")
+ax_rsi.set_ylabel("%")
+ax_rsi.legend()
+
+# 将volume除以100w
+ax_vol.bar(data.index, data.volume / 1000000)
+# 设置成百万位单位
+ax_vol.set_ylabel("millon")
+ax_vol.set_xlabel("date")
+fig.savefig(daily_data_position + "index.png")
+
+# 标记移动平均线买入卖出点
+# for date, point in data[["ma_point"]].itertuples():
+#     if math.isnan(point):
+#         continue
+#     if point > 0:
+#         ax_canddle.annotate("",
+#                             xy=(date, data.loc[date].close),
+#                             xytext=(date, data.loc[date].close - 10),
+#                             arrowprops=dict(facecolor="r",
+#                                             alpha=0.3,
+#                                             headlength=10,
+#                                             width=10))
+#     elif point < 0:
+#         ax_canddle.annotate("",
+#                             xy=(date, data.loc[date].close),
+#                             xytext=(date, data.loc[date].close + 10),
+#                             arrowprops=dict(facecolor="g",
+#                                             alpha=0.3,
+#                                             headlength=10,
+#                                             width=10))
