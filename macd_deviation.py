@@ -1,4 +1,4 @@
-# MACD背离
+# MACD 价格背离
 import math
 import os
 import time
