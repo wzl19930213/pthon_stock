@@ -1,5 +1,6 @@
 # 来自文章
 # https://blog.51cto.com/youerning/2428352?source=dra
+# 股票各种指标
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt

@@ -111,8 +111,8 @@ for code in codes:
             lastLowPrice = data["low"][peak_data[lastLowPeak]]
             lastLowMACD = data["hist"][peak_data[lastLowPeak]]
 
-            if curLowPrice < lastLowPrice and lastLowMACD < curMACD and data["hist"][peak_data[lastLowPeak + 1]] > 0:
-                pickMessage = "code: " + str(code) + "lastData: " + str(data["date"][peak_data[lastLowPeak]]) \
+            if curLowPrice < lastLowPrice and lastLowMACD < curMACD < 0 and data["hist"][peak_data[lastLowPeak + 1]] > 0:
+                pickMessage = "code: " + str(code) + ", lastData: " + str(data["date"][peak_data[lastLowPeak]]) \
                               + ", curDate: " + str(curDate) + "\n"
                 pickMessage += "lastLowPrice: " + str(lastLowPrice) + ", curLowPrice: " + str(curLowPrice) + "\n"
                 pickMessage += "lastLowMACD: " + str(lastLowMACD) + ", curMACD: " + str(curMACD) \
@@ -127,12 +127,21 @@ for code in codes:
 
         res_codes.append(code)
 
+        # ATR
+        data["atr"] = talib.ATR(data.high, data.low, data.close, timeperiod=14)
+        data["atr1Plus"] = data["ema11"] + data["atr"]
+        data["atr2Plus"] = data["ema11"] + 2 * data["atr"]
+        data["atr3Plus"] = data["ema11"] + 3 * data["atr"]
+        data["atr1Minus"] = data["ema11"] - data["atr"]
+        data["atr2Minus"] = data["ema11"] - 2 * data["atr"]
+        data["atr3Minus"] = data["ema11"] - 3 * data["atr"]
+
         # 绘制第一个图
         fig = plt.figure()
         fig.set_size_inches((16, 10))
 
-        ax_canddle = fig.add_axes((0, 0.5, 1, 0.5))
-        ax_macd = fig.add_axes((0, 0, 1, 0.40))
+        ax_canddle = fig.add_axes((0.04, 0.5, 0.96, 0.5))
+        ax_macd = fig.add_axes((0.04, 0.05, 0.96, 0.40))
 
         data_list = []
         for date, row in data[["open", "high", "low", "close"]].iterrows():
@@ -148,6 +157,12 @@ for code in codes:
         ax_canddle.xaxis_date()
         ax_canddle.plot(data.index, data.ema22, label="EMA11")
         ax_canddle.plot(data.index, data.ema11, label="EMA22")
+        ax_canddle.plot(data.index, data.atr1Plus, label="ATR1Plus", linestyle=":")
+        ax_canddle.plot(data.index, data.atr2Plus, label="ATR2Plus", linestyle=":")
+        ax_canddle.plot(data.index, data.atr3Plus, label="ATR3Plus", linestyle=":")
+        ax_canddle.plot(data.index, data.atr1Minus, label="ATR1Minus", linestyle=":")
+        ax_canddle.plot(data.index, data.atr2Minus, label="ATR2Minus", linestyle=":")
+        ax_canddle.plot(data.index, data.atr3Minus, label="ATR3Minus", linestyle=":")
         ax_canddle.legend()
 
         # 绘制MACD
@@ -160,7 +175,8 @@ for code in codes:
         fig.savefig(daily_data_position + code + ".png")
 
     except Exception as e:
-        print('error: ' + code + ", " + e)
+        print('error: ' + code + ", " + str(e))
 
 print('100%')
+print(message)
 print(res_codes)
