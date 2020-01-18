@@ -111,7 +111,7 @@ for code in codes:
             lastLowPrice = data["low"][peak_data[lastLowPeak]]
             lastLowMACD = data["hist"][peak_data[lastLowPeak]]
 
-            if curLowPrice < lastLowPrice and lastLowMACD < curMACD < 0 and data["hist"][peak_data[lastLowPeak + 1]] > 0:
+            if curLowPrice < lastLowPrice and lastLowMACD < curMACD and data["hist"][peak_data[lastLowPeak + 1]] > 0:
                 pickMessage = "code: " + str(code) + ", lastData: " + str(data["date"][peak_data[lastLowPeak]]) \
                               + ", curDate: " + str(curDate) + "\n"
                 pickMessage += "lastLowPrice: " + str(lastLowPrice) + ", curLowPrice: " + str(curLowPrice) + "\n"
