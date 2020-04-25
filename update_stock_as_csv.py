@@ -9,7 +9,7 @@ import update_stock_code
 local_position = global_value.local_position
 daily_data_position = global_value.local_position + 'daily_data/'
 current_time = time.strftime('%Y-%m-%d',time.localtime(time.time()))
-start_time = '2015-01-01'
+start_time = '2017-01-01'
 
 
 if os.path.exists(local_position + 'stock_basics.csv'):

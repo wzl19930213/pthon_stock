@@ -13,6 +13,7 @@ from mpl_finance import candlestick_ohlc
 from pandas.plotting import register_matplotlib_converters
 
 import global_value
+import time
 
 register_matplotlib_converters()
 '''
@@ -22,14 +23,15 @@ The converter was registered by pandas on import.
 Future versions of pandas will require you to explicitly register matplotlib converters.
 '''
 
-daily_data_position = global_value.local_position + 'fig/'
+daily_data_position = global_value.local_position + 'fig/specific/'
+current_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 
 # 使用ggplot样式，好看些
 mpl.style.use("ggplot")
 # 获取上证指数数据
-stock_code = "000001"
-start_time = "2019-01-01"
-data = ts.get_k_data(stock_code, index=True, start=start_time)
+stock_code = "002010"
+start_time = "2019-04-01"
+data = ts.get_k_data(stock_code, start=start_time)
 # 将date值转换为datetime类型，并且设置成index
 data.date = pd.to_datetime(data.date)
 data.index = data.date
@@ -47,12 +49,23 @@ data["ema11"] = talib.MA(data.close, timeperiod=11)
 
 # ATR
 data["atr"] = talib.ATR(data.high, data.low, data.close, timeperiod=14)
+
 data["atr1Plus"] = data["ema11"] + data["atr"]
 data["atr2Plus"] = data["ema11"] + 2 * data["atr"]
 data["atr3Plus"] = data["ema11"] + 3 * data["atr"]
 data["atr1Minus"] = data["ema11"] - data["atr"]
 data["atr2Minus"] = data["ema11"] - 2 * data["atr"]
 data["atr3Minus"] = data["ema11"] - 3 * data["atr"]
+
+data_len = len(data["low"])
+last_atr = data["atr"][data_len - 1]
+print("stock code: " + stock_code + ", close price: " + str(data["close"][data_len - 1]) + ", atr: " + str(last_atr))
+print("atr1Plus: " + str(data["close"][data_len - 1] + last_atr)
+      + ", atr2Plus: " + str(data["close"][data_len - 1] + 2 * last_atr)
+      + ", atr3Plus: " + str(data["close"][data_len - 1] + 3 * last_atr))
+print("atr1Minus: " + str(data["close"][data_len - 1] - last_atr)
+      + ", atr2Minus: " + str(data["close"][data_len - 1] - 2 * last_atr)
+      + ", atr3Minus: " + str(data["close"][data_len - 1] - 3 * last_atr))
 
 # 计算RSI
 data["rsi"] = talib.RSI(data.close)
@@ -108,7 +121,7 @@ ax_vol.bar(data.index, data.volume / 1000000)
 # 设置成百万位单位
 ax_vol.set_ylabel("millon")
 ax_vol.set_xlabel("date")
-fig.savefig(daily_data_position + "test.png")
+fig.savefig(daily_data_position + stock_code + "  " + current_time + ".png")
 
 # 标记移动平均线买入卖出点
 # for date, point in data[["ma_point"]].itertuples():
