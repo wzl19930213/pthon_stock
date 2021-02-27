@@ -29,7 +29,7 @@ current_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 # 使用ggplot样式，好看些
 mpl.style.use("ggplot")
 # 获取上证指数数据
-stock_code = "002010"
+stock_code = "601229"
 start_time = "2019-04-01"
 data = ts.get_k_data(stock_code, start=start_time)
 # 将date值转换为datetime类型，并且设置成index
