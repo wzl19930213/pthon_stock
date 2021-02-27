@@ -1,4 +1,8 @@
-# MACD 价格背离
+
+"""
+选股策略：MACD 价格背离
+"""
+
 import math
 import os
 import time
@@ -7,7 +11,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
 import talib
-import tushare as ts
 from matplotlib.pylab import date2num
 # pip install https://github.com/matplotlib/mpl_finance/archive/master.zip
 from mpl_finance import candlestick_ohlc
@@ -25,7 +28,7 @@ Future versions of pandas will require you to explicitly register matplotlib con
 '''
 
 local_position = global_value.local_position
-start_time = "2019-06-01"
+start_time = "2020-06-01"
 current_time = time.strftime('%Y-%m-%d', time.localtime(time.time()))
 daily_data_position = global_value.local_position + 'fig/macd_deviation/' + current_time + '/'
 
@@ -48,13 +51,7 @@ else:
 # 使用ggplot样式，好看些
 mpl.style.use("ggplot")
 
-if os.path.exists(local_position + 'stock_basics.csv'):
-    stock_basics = pd.read_csv(local_position + 'stock_basics.csv', encoding='GBK')
-    codes = stock_basics.iloc[:, 0]
-else:
-    update_stock_code.update_stock_code()
-    stock_basics = pd.read_csv(local_position + 'stock_basics.csv', encoding='GBK')
-    codes = stock_basics.iloc[:, 0]
+codes = update_stock_code.get_stock_codes()
 length = len(codes)
 
 print(start_time + '  ' + current_time + '  start: ' + str(length))
@@ -67,10 +64,11 @@ for code in codes:
         code = str(code).zfill(6)
         print('%.2f%%' % (count / length * 100) + ", code: " + str(code))
 
-        data = ts.get_k_data(code, start=start_time)
+        # data = ts.get_k_data(code, start=start_time)
+        data = global_value.pro.daily(ts_code=code, start_date=start_time)
         # 将date值转换为datetime类型，并且设置成index
-        data.date = pd.to_datetime(data.date)
-        data.index = data.date
+        data.trade_date = pd.to_datetime(data.trade_date)
+        data.index = data.trade_date
 
         # 计算指数移动平均线 EMA
         data["ema22"] = talib.MA(data.close, timeperiod=22)
@@ -91,7 +89,7 @@ for code in codes:
                             index + 2]):
                 peak_data.append(index)
 
-        curDate = data["date"][data_len - 1]
+        curDate = data["trade_date"][data_len - 1]
         curLowPrice = data["low"][data_len - 1]
         curMACD = data["hist"][data_len - 1]
 
@@ -112,7 +110,7 @@ for code in codes:
             lastLowMACD = data["hist"][peak_data[lastLowPeak]]
 
             if curLowPrice < lastLowPrice and lastLowMACD < curMACD and data["hist"][peak_data[lastLowPeak + 1]] > 0:
-                pickMessage = "code: " + str(code) + ", lastData: " + str(data["date"][peak_data[lastLowPeak]]) \
+                pickMessage = "code: " + str(code) + ", lastData: " + str(data["trade_date"][peak_data[lastLowPeak]]) \
                               + ", curDate: " + str(curDate) + "\n"
                 pickMessage += "lastLowPrice: " + str(lastLowPrice) + ", curLowPrice: " + str(curLowPrice) + "\n"
                 pickMessage += "lastLowMACD: " + str(lastLowMACD) + ", curMACD: " + str(curMACD) \

@@ -2,18 +2,18 @@
 # https://blog.51cto.com/youerning/2428352?source=dra
 # 股票各种指标
 
+import time
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
 import talib
-import tushare as ts
 from matplotlib.pylab import date2num
 # pip install https://github.com/matplotlib/mpl_finance/archive/master.zip
 from mpl_finance import candlestick_ohlc
 from pandas.plotting import register_matplotlib_converters
 
 import global_value
-import time
 
 register_matplotlib_converters()
 '''
@@ -31,10 +31,10 @@ mpl.style.use("ggplot")
 # 获取上证指数数据
 stock_code = "601229"
 start_time = "2019-04-01"
-data = ts.get_k_data(stock_code, start=start_time)
+data = global_value.pro.daily(ts_code=stock_code, start_date=start_time)
 # 将date值转换为datetime类型，并且设置成index
-data.date = pd.to_datetime(data.date)
-data.index = data.date
+data.trade_date = pd.to_datetime(data.trade_date)
+data.index = data.trade_date
 
 # 计算移动平均线
 data["ma10"] = talib.MA(data.close, timeperiod=10)
