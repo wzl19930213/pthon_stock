@@ -19,3 +19,6 @@ def get_stock_codes():
         stock_basics = pd.read_csv(local_position + 'stock_basics.csv', encoding='GBK')
     codes = stock_basics.iloc[:, 1]
     return codes
+
+
+get_stock_codes()
